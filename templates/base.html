@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Raasta — Hyderabad's Smart Civic Problem Solver{% endblock %}</title>
+    <!-- Modern Civic Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Custom Application Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Mandatory Civic Prototype Disclaimer Banner -->
+    <aside class="disclaimer-banner" role="complementary" aria-label="Prototype Notice">
+        <div class="banner-container">
+            <span class="badge-notice">Civic Simulation</span>
+            <span class="banner-text">
+                <strong>Educational Prototype:</strong> Raasta is an independent civic problem-solving simulation for Hyderabad citizens. It uses transparent rule-based heuristics and is <u>not</u> officially affiliated with GHMC, HMDA, or HMWS&SB.
+            </span>
+        </div>
+    </aside>
+
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Stylized Charminar / Civic Arch Icon -->
+                        <path d="M4 21V9l8-6 8 6v12"></path>
+                        <path d="M9 21v-7a3 3 0 0 1 6 0v7"></path>
+                        <path d="M4 13h16"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Raasta <span class="brand-city">Hyderabad</span></span>
+                    <span class="brand-sub">Smart Civic Problem Solver</span>
+                </div>
+            </a>
+
+            <!-- Mobile Navigation Toggle -->
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation Menu">
+                <span></span><span></span><span></span>
+            </button>
+
+            <!-- Navigation Links -->
+            <nav class="nav-menu" id="navMenu">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('report') }}" class="nav-link {% if request.endpoint == 'report' %}active{% endif %}">Report Problem</a>
+                <a href="{{ url_for('complaints') }}" class="nav-link {% if request.endpoint == 'complaints' %}active{% endif %}">Track & View Grievances</a>
+                <a href="{{ url_for('map_view') }}" class="nav-link {% if request.endpoint == 'map_view' %}active{% endif %}">Civic Map</a>
+                <a href="{{ url_for('admin') }}" class="nav-link nav-admin-btn {% if 'admin' in request.endpoint %}active{% endif %}">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Admin Portal
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Complaint Details Modal -->
+    <div id="complaintModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span id="modalTrackingBadge" class="modal-tracking-pill">HYD-2026-XXXX</span>
+                    <h3 id="modalTitle" class="modal-title">Grievance Details</h3>
+                </div>
+                <button class="modal-close" id="modalCloseBtn" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                <!-- Dynamically populated via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div class="brand-title">Raasta — Hyderabad</div>
+                <p class="footer-desc">
+                    A transparent citizen platform empowering residents across Hyderabad's wards with rule-based issue triage, duplicate detection, and live resolution tracking.
+                </p>
+                <div class="tagline-badge">"Report a problem. Find a solution. Track the change."</div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}">Homepage</a></li>
+                    <li><a href="{{ url_for('report') }}">Lodge a New Grievance</a></li>
+                    <li><a href="{{ url_for('complaints') }}">Public Grievance Registry</a></li>
+                    <li><a href="{{ url_for('map_view') }}">Hyderabad Ward Map</a></li>
+                    <li><a href="{{ url_for('admin') }}">Demo Admin Console (PIN Protected)</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Civic Coverage</h4>
+                <p class="footer-meta">
+                    Covering 35+ major Hyderabad zones including Charminar, Banjara Hills, Madhapur, Kukatpally, Mehdipatnam, Secunderabad, Begumpet, and Dilsukhnagar.
+                </p>
+                <div class="engine-badge">
+                    <span>Engine: Transparent Heuristic NLP</span>
+                    <small>English & Roman Urdu Vocabulary Supported</small>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <span>&copy; Raasta Hyderabad — Civic Problem Solver Project. Developed with Python Flask, SQLite & Leaflet.</span>
+                <span>Open Data &bull; Transparent Rules &bull; Zero Paid APIs Required</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Common JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

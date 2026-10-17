@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Raasta — Hyderabad's Smart Civic Problem Solver{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-pill">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            Active Civic Prototype &bull; Hyderabad Municipal Zones
+        </div>
+        <h1 class="hero-title">Raasta — Hyderabad's Smart Civic Problem Solver</h1>
+        <div class="hero-tagline">"Report a problem. Find a solution. Track the change."</div>
+        <p class="hero-desc">
+            Empowering residents of Charminar, Madhapur, Kukatpally, Mehdipatnam, Secunderabad, and all Hyderabad localities to voice civic concerns in <strong>English & Roman Urdu</strong>. Our transparent rule-based engine categorizes issues, assesses severity, eliminates duplicate reports, and tracks resolution step-by-step.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('report') }}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Lodge Grievance Now
+            </a>
+            <a href="{{ url_for('complaints') }}" class="btn btn-outline">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Track Status & View Reports
+            </a>
+            <a href="{{ url_for('map_view') }}" class="btn btn-outline">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+                Live Civic Map
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Live Key Metric Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon total">#</div>
+        <div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Grievances</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon reported">!</div>
+        <div>
+            <div class="stat-value">{{ stats.reported }}</div>
+            <div class="stat-label">Reported</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon review">⟳</div>
+        <div>
+            <div class="stat-value">{{ stats.under_review + stats.action_taken }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon resolved">✓</div>
+        <div>
+            <div class="stat-value">{{ stats.resolved }}</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Quick Tracking Search Bar -->
+    <div class="card" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 28px;">
+        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 6px;">Have a Tracking Reference ID?</h2>
+            <p style="font-size: 0.92rem; opacity: 0.9; margin-bottom: 18px;">
+                Enter your reference code (e.g., <code>HYD-2026-1001</code>) to see real-time updates and field notes.
+            </p>
+            <form action="{{ url_for('complaints') }}" method="GET" style="display: flex; gap: 10px; max-width: 520px; margin: 0 auto;">
+                <input type="text" name="search" class="form-control" placeholder="Enter Tracking ID or Locality..." style="background: #ffffff; color: #0f172a;" required>
+                <button type="submit" class="btn" style="background: #0f172a; color: #ffffff; white-space: nowrap;">Track Grievance</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3-Column How It Works Section -->
+    <div style="margin: 36px 0;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; text-align: center;">
+            How Raasta Solves Civic Problems
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div class="card" style="margin-bottom: 0;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📝</div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">1. Report in English or Urdu</h3>
+                <p style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+                    Express the issue naturally: <em>"Gutter overflow ho raha hai"</em> or <em>"Streetlights are off on Jubilee Hills Road 36"</em>. Select your locality or click on the map.
+                </p>
+            </div>
+            <div class="card" style="margin-bottom: 0;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">2. Transparent Rule Engine</h3>
+                <p style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+                    No hidden "black-box" models. Deterministic keywords categorize into Drainage, Garbage, Streetlights, Roads, or Water Supply and compute severity transparently.
+                </p>
+            </div>
+            <div class="card" style="margin-bottom: 0;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🔍</div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">3. Duplicate Prevention & Tracking</h3>
+                <p style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+                    Automatically detects if a neighbor already lodged the same complaint nearby. Tracks progress through <em>Reported &rarr; Under Review &rarr; Action Taken &rarr; Resolved</em>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grievances and Transparent Engine Info -->
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-top: 24px;">
+        <!-- Left: Recent Grievances -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Recent Grievances from Hyderabad Wards
+                </h3>
+                <a href="{{ url_for('complaints') }}" class="btn btn-outline btn-sm">View All &rarr;</a>
+            </div>
+
+            {% for comp in recent_complaints %}
+            <div class="complaint-card">
+                <div class="complaint-card-header">
+                    <div>
+                        <a href="javascript:void(0)" onclick="openComplaintModal('{{ comp.tracking_id }}')" class="complaint-id">{{ comp.tracking_id }}</a>
+                        <div class="complaint-summary">{{ comp.summary }}</div>
+                    </div>
+                    <div>
+                        {% if comp.status == 'Reported' %}
+                            <span class="badge badge-status-reported">Reported</span>
+                        {% elif comp.status == 'Under Review' %}
+                            <span class="badge badge-status-review">Under Review</span>
+                        {% elif comp.status == 'Action Taken' %}
+                            <span class="badge badge-status-action">Action Taken</span>
+                        {% else %}
+                            <span class="badge badge-status-resolved">Resolved</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="complaint-desc">{{ comp.raw_description }}</div>
+                <div class="complaint-meta">
+                    <span class="complaint-meta-item">📍 {{ comp.locality }}</span>
+                    <span class="complaint-meta-item">🏷️ {{ comp.category }}</span>
+                    <span class="complaint-meta-item">
+                        {% if comp.severity == 'Critical' %}
+                            <span class="badge badge-sev-critical">Critical</span>
+                        {% elif comp.severity == 'High' %}
+                            <span class="badge badge-sev-high">High</span>
+                        {% elif comp.severity == 'Medium' %}
+                            <span class="badge badge-sev-medium">Medium</span>
+                        {% else %}
+                            <span class="badge badge-sev-low">Low</span>
+                        {% endif %}
+                    </span>
+                    <span class="complaint-meta-item" style="margin-left: auto;">
+                        <button class="btn btn-outline btn-sm" onclick="openComplaintModal('{{ comp.tracking_id }}')">
+                            Track Progress &rarr;
+                        </button>
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Right: Transparent Rule System & Coverage -->
+        <div>
+            <div class="card" style="border-left: 4px solid #0284c7;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
+                    🛡️ Transparent Technology Disclosure
+                </h3>
+                <p style="font-size: 0.86rem; color: #475569; line-height: 1.6; margin-bottom: 12px;">
+                    Unlike opaque artificial intelligence that hallucinate or require recurring cloud fees, Raasta uses <strong>fully inspectable, deterministic rule-based algorithms</strong>:
+                </p>
+                <ul style="font-size: 0.84rem; color: #475569; padding-left: 18px; line-height: 1.6; margin-bottom: 12px;">
+                    <li><strong>Bilingual Lexicon:</strong> Scans both standard civic English and Roman Urdu / Hyderabadi expressions.</li>
+                    <li><strong>Priority Matrix:</strong> Immediate safety terms like <em>"khula manhole"</em> or <em>"hanging live wire"</em> directly elevate severity to <strong>Critical</strong>.</li>
+                    <li><strong>Jaccard Duplicate Detection:</strong> Checks recent neighborhood complaints to prevent duplicate field dispatches.</li>
+                </ul>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.78rem; font-family: var(--font-mono); color: #0369a1;">
+                    engine: Heuristic-NLP-v1.2 &bull; 100% Offline &bull; Zero External AI Cost
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 10px;">
+                    🏙️ Supported Hyderabad Wards
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 220px; overflow-y: auto; padding-right: 4px;">
+                    {% for name, data in localities.items() %}
+                        <a href="{{ url_for('complaints', locality=name) }}" class="urdu-pill" style="text-decoration: none;">
+                            {{ name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

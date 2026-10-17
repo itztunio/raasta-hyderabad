@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Public Grievance Registry & Tracking — Raasta Hyderabad{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+                Public Grievance Registry & Progress Tracker
+            </h1>
+            <p style="font-size: 0.92rem; color: #475569;">
+                Track filed complaints across Hyderabad wards from submission through field resolution.
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('report') }}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Lodge New Grievance
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <form method="GET" action="{{ url_for('complaints') }}" class="filter-bar">
+        <div class="search-box">
+            <input type="text" name="search" class="form-control" placeholder="Search Tracking ID, locality, keywords..." value="{{ search_query }}">
+        </div>
+
+        <select name="category" class="form-control" onchange="this.form.submit()">
+            <option value="All" {% if selected_category == 'All' %}selected{% endif %}>All Categories</option>
+            <option value="Drainage" {% if selected_category == 'Drainage' %}selected{% endif %}>Drainage</option>
+            <option value="Garbage" {% if selected_category == 'Garbage' %}selected{% endif %}>Garbage</option>
+            <option value="Streetlight" {% if selected_category == 'Streetlight' %}selected{% endif %}>Streetlight</option>
+            <option value="Roads" {% if selected_category == 'Roads' %}selected{% endif %}>Roads</option>
+            <option value="Water Supply" {% if selected_category == 'Water Supply' %}selected{% endif %}>Water Supply</option>
+            <option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+
+        <select name="status" class="form-control" onchange="this.form.submit()">
+            <option value="All" {% if selected_status == 'All' %}selected{% endif %}>All Statuses</option>
+            <option value="Reported" {% if selected_status == 'Reported' %}selected{% endif %}>Reported</option>
+            <option value="Under Review" {% if selected_status == 'Under Review' %}selected{% endif %}>Under Review</option>
+            <option value="Action Taken" {% if selected_status == 'Action Taken' %}selected{% endif %}>Action Taken</option>
+            <option value="Resolved" {% if selected_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+
+        <select name="locality" class="form-control" onchange="this.form.submit()">
+            <option value="All" {% if selected_locality == 'All' %}selected{% endif %}>All Localities</option>
+            {% for name in localities.keys() %}
+                <option value="{{ name }}" {% if selected_locality == name %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('complaints') }}" class="btn btn-outline btn-sm">Reset</a>
+    </form>
+
+    <!-- Results Count -->
+    <div style="margin-bottom: 16px; font-size: 0.88rem; color: #64748b; display: flex; justify-content: space-between;">
+        <span>Showing <strong>{{ complaints|length }}</strong> registered grievance(s)</span>
+        <span>Transparent Heuristic Triage</span>
+    </div>
+
+    <!-- Grievances List -->
+    {% if complaints %}
+        {% for comp in complaints %}
+        <div class="complaint-card">
+            <div class="complaint-card-header">
+                <div>
+                    <a href="javascript:void(0)" onclick="openComplaintModal('{{ comp.tracking_id }}')" class="complaint-id">
+                        {{ comp.tracking_id }}
+                    </a>
+                    <div class="complaint-summary">{{ comp.summary }}</div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    {% if comp.status == 'Reported' %}
+                        <span class="badge badge-status-reported">Reported</span>
+                    {% elif comp.status == 'Under Review' %}
+                        <span class="badge badge-status-review">Under Review</span>
+                    {% elif comp.status == 'Action Taken' %}
+                        <span class="badge badge-status-action">Action Taken</span>
+                    {% else %}
+                        <span class="badge badge-status-resolved">Resolved</span>
+                    {% endif %}
+
+                    {% if comp.severity == 'Critical' %}
+                        <span class="badge badge-sev-critical">Critical</span>
+                    {% elif comp.severity == 'High' %}
+                        <span class="badge badge-sev-high">High</span>
+                    {% elif comp.severity == 'Medium' %}
+                        <span class="badge badge-sev-medium">Medium</span>
+                    {% else %}
+                        <span class="badge badge-sev-low">Low</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="complaint-desc">
+                {{ comp.raw_description }}
+            </div>
+
+            {% if comp.is_duplicate %}
+            <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #991b1b;">
+                ⚠️ <strong>Duplicate Flag:</strong> Corresponds to previously filed grievance 
+                <a href="javascript:void(0)" onclick="openComplaintModal('{{ comp.duplicate_of }}')" style="color: inherit; text-decoration: underline; font-weight: 700;">
+                    {{ comp.duplicate_of }}
+                </a> ({{ comp.duplicate_similarity }}% similarity).
+            </div>
+            {% endif %}
+
+            <!-- Mini Progress Bar -->
+            <div style="margin: 12px 0 16px;">
+                <div class="tracker-steps" style="margin: 10px 0;">
+                    <div class="tracker-step {% if comp.status in ['Reported', 'Under Review', 'Action Taken', 'Resolved'] %}active{% endif %}">
+                        <div class="tracker-dot">1</div>
+                        <div class="tracker-step-title">Reported</div>
+                    </div>
+                    <div class="tracker-step {% if comp.status in ['Under Review', 'Action Taken', 'Resolved'] %}active{% endif %}">
+                        <div class="tracker-dot">2</div>
+                        <div class="tracker-step-title">Under Review</div>
+                    </div>
+                    <div class="tracker-step {% if comp.status in ['Action Taken', 'Resolved'] %}active{% endif %}">
+                        <div class="tracker-dot">3</div>
+                        <div class="tracker-step-title">Action Taken</div>
+                    </div>
+                    <div class="tracker-step {% if comp.status == 'Resolved' %}completed{% endif %}">
+                        <div class="tracker-dot">4</div>
+                        <div class="tracker-step-title">Resolved</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="complaint-meta">
+                <span class="complaint-meta-item">📍 {{ comp.locality }}{% if comp.landmark %} ({{ comp.landmark }}){% endif %}</span>
+                <span class="complaint-meta-item">🏷️ {{ comp.category }}</span>
+                <span class="complaint-meta-item">📅 {{ comp.created_at }}</span>
+                <span class="complaint-meta-item" style="margin-left: auto;">
+                    <button class="btn btn-outline btn-sm" onclick="openComplaintModal('{{ comp.tracking_id }}')">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Full Details & Timeline
+                    </button>
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: 48px 20px;">
+            <div style="font-size: 2.5rem; margin-bottom: 12px;">🔍</div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">No Grievances Found</h3>
+            <p style="font-size: 0.92rem; color: #64748b; margin-bottom: 18px;">
+                No registered complaints match the current filter criteria or search keyword.
+            </p>
+            <a href="{{ url_for('complaints') }}" class="btn btn-outline btn-sm">Clear Filters</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Check if track param was provided in URL to auto-open modal
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackId = urlParams.get("track") || urlParams.get("search");
+        if (trackId && trackId.toUpperCase().startsWith("HYD-")) {
+            openComplaintModal(trackId);
+        }
+    });
+</script>
+{% endblock %}

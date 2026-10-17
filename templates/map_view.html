@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Civic Map — Raasta Hyderabad{% endblock %}
+
+{% block content %}
+<div class="map-page-layout">
+    <!-- Map Sidebar -->
+    <aside class="map-sidebar">
+        <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+                Hyderabad Civic Map
+            </h2>
+            <p style="font-size: 0.8rem; color: #64748b;">
+                Real-time geographic visualization of grievances across Hyderabad wards with verified GPS coordinates.
+            </p>
+        </div>
+
+        <!-- Locality Jumper -->
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Jump to Ward / Locality</label>
+            <select id="mapLocalityJump" class="form-control" style="font-size: 0.85rem;">
+                <option value="">-- Jump to Ward --</option>
+                {% for name, data in localities.items() %}
+                    <option value="{{ name }}" data-lat="{{ data.lat }}" data-lng="{{ data.lng }}">
+                        {{ name }} ({{ data.zone }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Category & Status Filters -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>
+                <label class="form-label" style="font-size: 0.8rem;">Category</label>
+                <select id="mapCategoryFilter" class="form-control" style="font-size: 0.82rem;">
+                    <option value="All">All Categories</option>
+                    <option value="Drainage">Drainage</option>
+                    <option value="Garbage">Garbage</option>
+                    <option value="Streetlight">Streetlight</option>
+                    <option value="Roads">Roads</option>
+                    <option value="Water Supply">Water Supply</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label" style="font-size: 0.8rem;">Status</label>
+                <select id="mapStatusFilter" class="form-control" style="font-size: 0.82rem;">
+                    <option value="All">All Statuses</option>
+                    <option value="Reported">Reported</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Action Taken">Action Taken</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Map Legend -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px;">
+                Status Color Legend
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.76rem;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></span>
+                    <span>Reported</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b;"></span>
+                    <span>Under Review</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #0284c7;"></span>
+                    <span>Action Taken</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+                    <span>Resolved</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Markers Counter -->
+        <div style="font-size: 0.82rem; color: #475569; font-weight: 600;">
+            Active Pins on Map: <span id="mapPinCount" style="color: #0284c7; font-weight: 800;">0</span>
+        </div>
+
+        <!-- Scrollable Grievance Feed List on Map -->
+        <div id="mapComplaintsFeed" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Rendered dynamically by map.js -->
+        </div>
+    </aside>
+
+    <!-- Map Canvas -->
+    <div class="map-canvas-container">
+        <div id="mainLeafletMap"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}
