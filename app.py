@@ -36,7 +36,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(16))
 
 # Demo Admin Credentials (Educational / Prototype Use)
-ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "change-me-locally")
 ADMIN_PASSWORD = "admin123"
 
 # Initialize DB on start
